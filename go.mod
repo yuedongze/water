@@ -1,4 +1,4 @@
-module github.com/songgao/water
+module github.com/yuedongze/water
 
 go 1.20
 
