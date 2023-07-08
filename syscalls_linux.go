@@ -5,6 +5,8 @@ import (
 	"strings"
 	"syscall"
 	"unsafe"
+
+	"golang.org/x/sys/unix"
 )
 
 const (
@@ -31,7 +33,7 @@ func ioctl(fd uintptr, request uintptr, argp uintptr) error {
 func setupFd(config Config, fd uintptr) (name string, err error) {
 	var flags uint16 = cIFFNOPI
 	if config.DeviceType == TUN {
-		flags |= cIFFTUN
+		flags |= cIFFTUN | unix.IFF_NO_PI | unix.IFF_VNET_HDR
 	} else {
 		flags |= cIFFTAP
 	}
