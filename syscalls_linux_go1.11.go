@@ -4,6 +4,7 @@
 package water
 
 import (
+	"log"
 	"os"
 	"syscall"
 
@@ -28,6 +29,22 @@ func openDev(config Config) (ifce *Interface, err error) {
 		return nil, err
 	}
 	sc.Control(func(fd uintptr) {
+		var (
+			ifr *unix.Ifreq
+		)
+		ifr, err = unix.NewIfreq(name)
+		if err != nil {
+			return
+		}
+		err = unix.IoctlIfreq(int(fd), unix.TUNGETIFF, ifr)
+		if err != nil {
+			return
+		}
+		got := ifr.Uint16()
+		if got&unix.IFF_VNET_HDR == 0 {
+			log.Panicln("IFF_VNET_HDR is not enabled")
+		}
+
 		tunOffloads := unix.TUN_F_CSUM | unix.TUN_F_TSO4 | unix.TUN_F_TSO6
 		err = unix.IoctlSetInt(int(fd), unix.TUNSETOFFLOAD, tunOffloads)
 		if err != nil {
